@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #table {
+            width: 20%;
+            border: black 1px solid;
+            margin: 100px auto 10px;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: #000000 1px solid;
+            text-align: center;
+        }
+
+        #div1 {
+            width: 10%;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+<table id="table">
+    <tr>
+
+        <th>name</th>
+        <th>age</th>
+        <th>操作</th>
+    </tr>
+    <tr>
+        <td class="tdname">tom</td>
+        <td>12</td>
+        <td><a href="#">删除</a></td>
+
+    </tr>
+    <tr>
+        <td class="tdname">jack</td>
+        <td>13</td>
+        <td><a href="#">删除</a></td>
+    </tr>
+</table>
+<div id="div1">
+    name:<input type="text" id="name" value=""> <br/>
+    age:<input type="text" id="age" value="">
+    <br/> <br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id="button">添加</button>
+</div>
+
+</body>
+
+<script src="../static/jquery-3.5.1.js"></script>
+<script>
+    $(function () {
+        /**
+         * 添加
+         */
+
+        $("#button").click(function () {
+            var $name = $("#name");
+            var $age = $("#age");
+            var name = $name.val();
+            var age = $age.val();
+            $('<tr><td class="tdname">' + name + '</td><td>' + age + '</td><td><a href="#">删除</a></td></tr>')
+             .appendTo($("#table>tbody"));//.find("a").click(clickDelete)
+            $name.val("")
+            $age.val("")
+
+        })
+
+
+        /**
+         * 给a绑定点击响应函数
+         */
+
+        // $("tr a").click(clickDelete);
+        function clickDelete() {
+            var $tr=$(this).parents("tr");
+             // var nametd=$tr.children(":first").html();
+             var nametd=$tr.children(".tdname").html();
+            //var nametd=$tr.find(".tdname").html();
+            if(confirm("确定删除"+nametd+"吗？")){
+                $tr.remove()
+            }
+            return false;
+        }
+
+
+        /**
+         * 利用事件的委派  给祖先元素添加单机响应函数
+         *    这样 添加的时候 就不用在给每个a 标签添加单机响应函数了
+         */
+        $("#table tbody").delegate("a", "click",clickDelete)
+
+
+    })
+</script>
+</html>

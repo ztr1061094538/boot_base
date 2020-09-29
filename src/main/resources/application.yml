@@ -1,0 +1,76 @@
+
+
+server:
+  port: 8070
+
+spring:
+  mvc:
+    static-path-pattern: /static/**
+  resources:
+    static-locations: classpath:/static/
+  datasource:
+    username: root
+    password: zhan123456
+    url: jdbc:mysql://localhost:3306/zs?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&characterEncoding=utf-8
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+
+
+
+  activiti:
+    check-process-definitions: false #自动检查、部署流程定义文件
+    #database-schema-update: drop-create #自动更新数据库结构
+    database-schema-update: true
+    process-definition-location-prefix: classpath:/processes/ #流程定义文件存放目录
+
+  #邮箱配置
+  mail:
+   #发送方的配置
+    host: smtp.qq.com
+    username: 1061094538@qq.com
+    #163邮箱的授权码    是发送方的授权码
+    #password: zhan123456
+    password: cjvgwpxsmnxpbfdb
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+
+    #连接redis  protected-mode=no  bind127.0.0.1注释掉
+    #firewall-cmd --query-port=6379/tcp  =no    6379端口没打开
+    #firewall-cmd --add-port=6379/tcp    =success  6379 端口打开
+  redis:
+    host: 192.168.149.128
+    port: 6379
+    database: 0
+
+
+  kafka:
+    bootstrap-servers: 192.168.149.128:9092
+    producer:
+      batch-size: 16
+      #重复次数
+      retries: 0
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      #auto-commit-interval: 100
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: test-consumer-group
+
+    listener:
+      ack-mode: manual
+
+logging:
+   level:
+     root: info

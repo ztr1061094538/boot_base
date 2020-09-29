@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../static/jquery-3.5.1.js"></script>
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"-->
+    <!--integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+    <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"-->
+    <!--integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"-->
+    <!--crossorigin="anonymous"></script>-->
+    <!--<link href="../static/bootstrap/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" rel="stylesheet">-->
+    <!--<link href="../static/bootstrap/bootstrap-3.3.7-dist/js/bootstrap.min.js" rel="stylesheet">-->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    <script src="../static/bootstrap-datetimepicker.min.js"></script>
+    <script src="../static/bootstrap-datetimepicker.zh-CN.js"></script>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .box1 {
+            height: 100px;
+            width: auto;
+            background-color: azure;
+        }
+
+        ul {
+
+            list-style: none;
+
+        }
+
+        th, td {
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+<body>
+
+
+<!--<div class="container">-->
+<div class="box1">
+    <input type="hidden" id="userId" th:value="${userId}">
+</div>
+<div class="row">
+    <div class="col-md-1" id="wrap">
+        <!-- 侧边栏标签页 -->
+        <ul class="nav nav-pills nav-stacked">
+            <!-- 侧边栏选项 -->
+            <li role="presentation" class="active">
+                <!-- 选项控制data-target对应的显隐 -->
+                <a href="#" data-toggle="collapse" data-target="#list">流程管理</a>
+                <!-- 隐藏的详细菜单 -->
+                <ul id="list" class="collapse in">
+                    <li><a href="#" class="processTypes">&nbsp;&nbsp; 流程类型</a></li>
+                    <li><a href="#" class="mytodo">&nbsp;&nbsp; 我的代办</a></li>
+                    <li><a href="#" class="myStart">&nbsp;&nbsp; 我的发起</a></li>
+                    <li><a href="#">&nbsp;&nbsp; 我的审批</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-5 col-md-offset-3">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>流程id</th>
+                <th>流程名称</th>
+                <th>流程状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody class="table-body">
+            <!--<tr>-->
+            <!--<td class="processId">0908001</td>-->
+            <!--<td class="processName">请假流程</td>-->
+            <!--<td>正常</td>-->
+            <!--<td>-->
+            <!--&lt;!&ndash;<button class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal">发起</button>&ndash;&gt;-->
+            <!--<a class="btn btn-default btn-sm faqi" data-toggle="modal"-->
+            <!--data-target="#myModal">发起</a>-->
+            <!--</td>-->
+            <!--</tr>-->
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labmyModalelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel" style="text-align: center">动态取流程名称</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-3 col-md-offset-2">
+                        <label for="startDate">开始时间:</label>
+                        <input id="startDate" class="form_datetime form-control" type="text" value="" size="10">
+                    </div>
+                    <div class="col-md-3 col-md-offset-1">
+                        <label for="startDate">结束时间:</label>
+                        <input id="endDate" class="form_datetime form-control" type="text" value="" size="10">
+                    </div>
+
+                </div>
+                <div class="row">&nbsp;</div>
+                <div class="row">&nbsp;</div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <label for="detail">原因描述:</label>
+                        <textarea id="detail" class="form-control" rows="3"></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button id="btn01" type="button" class="btn btn-primary">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+
+
+    </div><!-- /.modal -->
+</div>
+</body>
+<script>
+    $(".form_datetime").datetimepicker({
+        format: "yyyy-mm-dd",
+        autoclose: true,
+        todayBtn: true,
+        todayHighlight: true,
+        showMeridian: true,
+        pickerPosition: "bottom-left",
+        language: 'zh-CN',//中文，需要引用zh-CN.js包
+        startView: 2,//月视图
+        minView: 2//日期时间选择器所能够提供的最精确的时间选择视图
+    });
+    //当前月份的上一个月
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    var nowDate = y + '-' + m + '-' + day;
+    if (m == 0) {
+        y = y - 1;
+        nowDate = y + '-' + 12;
+    }
+    $('#startDate').datetimepicker('setDate', new Date(nowDate)); //把要设置的默认值放入new Date()里面
+    $('#endDate').datetimepicker('setDate', new Date(nowDate));
+    var processId = 0;
+    var userId = $("#userId").val();
+
+    function faqiliucheng() {
+        var tr = $(this).parents("tr")
+        processId = tr.find(".processId").val();
+        var processName = tr.find(".processName").val();
+        $("#myModalLabel").html(processName);
+    }
+
+    $('.faqi').click(faqiliucheng);
+    var tbody = document.getElementsByTagName("tbody")[0];
+    $('#btn01').click(function () {
+        var detail = $("#detail").val();
+        if (detail == null || detail == "") {
+            alert("描述不能为空!!!")
+            return false;
+        }
+        /**
+         * 发起流程
+         */
+        $.ajax({
+            url: '/activiti/startActiviti/' + processId + '/' + userId,
+            type: 'post',
+            data: '',
+            success: function (res) {
+                if (res.code == 200) {
+                    alert("发起 成功");
+                } else {
+                    alert("发起  失败");
+                }
+            }
+        })
+
+
+        $('#myModal').modal('hide')
+
+    });
+
+
+    /*
+    *  $(function () {})=      window.onload=function(){}
+    * */
+    $(function () {
+        $('.processTypes').click(function () {
+            $.ajax({
+                url: '/activiti/getZprocessList',
+                type: 'get',
+                data: '',
+                success: function (res) {
+                    res.data.forEach(function (item) {
+                        var tr = document.createElement("tr");
+
+                        tr.innerHTML = "<td class='processId'>" + item.id + "</td>" +
+                            "<td class='processName'>" + item.name + "</td>" +
+                            "<td>启用</td>" +
+                            "<td><a class='btn btn-default btn-sm faqi' data-toggle='modal'data-target='#myModal'>发起</a></td>";
+                        //tr.getElementsByTagName("a")[0].onclick=faqiliucheng;
+                        $("tr a").click(faqiliucheng);
+                        tbody.appendChild(tr);
+
+                    });
+
+                }
+            })
+        });
+
+        $('.myStart').click(function () {
+            window.location = "mystart.html";
+        });
+
+    })
+
+</script>
+</html>
