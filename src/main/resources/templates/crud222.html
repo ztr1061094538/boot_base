@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #table {
+            width: 20%;
+            border: black 1px solid;
+            margin: 100px auto 10px;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: #000000 1px solid;
+            text-align: center;
+        }
+
+        #div1 {
+            width: 10%;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+<table id="table">
+    <tr>
+        <th>name</th>
+        <th>age</th>
+        <th>操作</th>
+    </tr>
+    <tr>
+        <td class="tdname">tom</td>
+        <td>12</td>
+        <td><a href="#">删除</a></td>
+
+    </tr>
+    <tr>
+        <td class="tdname">jack</td>
+        <td>13</td>
+        <td><a href="#">删除</a></td>
+    </tr>
+</table>
+<div id="div1">
+    name:<input type="text" id="name" value=""> <br/>
+    age:<input type="text" id="age" value="">
+    <br/> <br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id="button">添加</button>
+</div>
+
+</body>
+
+<script src="../static/jquery-3.5.1.js"></script>
+<script>
+    $("#button").click(function () {
+        var $name = $("#name");
+        var $age = $("#age");
+        var name = $name.val();
+        var age = $age.val();
+        $('<tr><td class="tdname">' + name + '</td><td>' + age + '</td><td><a href="#">删除</a></td></tr>')
+            .appendTo($("#table tbody"));
+        $name.val("");
+        $age.val("");
+
+    })
+
+    function clickdelete() {
+        var $tr = $(this).parents("tr");
+        var name = $tr.find(".tdname").html();
+        if (confirm("确认要删除" + name + "吗")) {
+            $tr.remove();
+        }
+
+    }
+
+    //事件的委托
+
+    $("#table").delegate("a", "click", clickdelete);
+
+
+</script>
+</html>

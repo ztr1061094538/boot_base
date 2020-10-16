@@ -9,7 +9,8 @@
             top: 50%;
             transform: translateY(-50%);
         }
-        body{
+
+        body {
 
             background-image: url("../static/img/ruiwen.jpg");
         }
@@ -28,16 +29,23 @@
             <form th:action="@{/login}" method="post">
                 <div class="form-group">
                     <label for="username">用户名 </label>
-                    <input type="text" class="form-control" id="username" placeholder="username" name="username">
+                    <input type="text" class="form-control" id="username" placeholder="username" name="username"
+                           value="">
                 </div>
                 <div class="form-group">
                     <label for="password">密码 </label>
-                    <input type="password" class="form-control" id="password" placeholder="password" name="password">
+                    <input type="password" class="form-control" id="password" placeholder="password" name="password"
+                           value="">
+                </div>
+
+                <div class="form-group">
+                    <label for="remPas">记住密码</label>
+                    <input type="checkbox" id="remPas" value="y" name="remmeber">
                 </div>
 
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
-                        <button type="reset" class="btn btn-default">重置</button> &nbsp;  &nbsp;  &nbsp;
+                        <button type="reset" class="btn btn-default">重置</button> &nbsp; &nbsp; &nbsp;
                         <button type="submit" class="btn btn-default">登录</button>
                     </div>
                 </div>
@@ -47,4 +55,57 @@
 </div>
 
 </body>
+<script src="../static/jquery-3.5.1.js"></script>
+<script>
+
+
+    function getCookieValue(name) {
+        var cookkies = document.cookie.split(";");
+        for (var i = 0; i < cookkies.length; i++) {
+            var kv = cookkies[i].split("=");
+            if (kv[0].trim() == name) {
+                return kv[1].trim();
+            }
+        }
+        return '';
+    }
+
+
+    // var key = "loginInfo=";//后台存进cookie的时候，cookie为：   zhan=123123
+    // var nameAndPass = document.cookie;
+    // var index = nameAndPass.indexOf("+");
+    // var name = "";
+    // var password = "";
+    // if (index != -1) {
+    //     name = nameAndPass.substring(key.length, index);
+    //     password = nameAndPass.substring(index + 1, nameAndPass.length);
+    //     $("#username").val(name);
+    //     $("#password").val(password);
+    //     $("#remPas").prop("checked", true)
+    // }
+
+
+    $("#username").change(function () {
+        var name = $("#username").val();
+        var value = getCookieValue(name);
+        $("#password").val(value);
+    })
+
+    $(function () {
+        /**
+         * 刚进入页面 默认取第一个cookie好了
+         * @type {string[]}
+         */
+        var cookkies = document.cookie.split(";");
+        for (var i = 0; i < cookkies.length; i++) {
+            if (cookkies[i] != null) {
+                var kv = cookkies[i].split("=");
+                $("#username").val(kv[0].trim());
+                $("#password").val(kv[1].trim());
+                $("#remPas").prop("checked", true)
+                break;
+            }
+        }
+    })
+</script>
 </html>

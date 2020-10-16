@@ -43,9 +43,6 @@ import java.util.*;
 @Component
 public class Bsssssssssss {
 
-//    public static void main(String[] args) {
-//    }
-
     @Resource
     private RestTemplate restTemplate;
 
@@ -56,6 +53,15 @@ public class Bsssssssssss {
 
 
     public static void main(String[] args) {
+
+        Map<String,String> map=new HashMap<>();
+
+        map.put("1","1");
+        map.put("2","2");
+        User user=new User();
+        user.setUserName(map.get("3"));
+        System.out.println("user = " + user);
+
 
     }
 

@@ -17,4 +17,5 @@
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     </resultMap>
 
+    <select id="test" resultMap=""></select>
 </mapper>

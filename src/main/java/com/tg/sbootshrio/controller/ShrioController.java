@@ -20,7 +20,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,7 +166,7 @@ public class ShrioController {
 
 
     @RequestMapping("/tologin")
-    public String tologin(Model model) {
+    public String tologin(Model model, HttpServletRequest request, HttpServletResponse response) {
         return "login";
     }
 
@@ -172,7 +174,8 @@ public class ShrioController {
      *
      */
     @PostMapping("/login")
-    public String login(String username, String password, Model model, HttpServletRequest request) {
+    public String login(String username, String password, String remmeber, Model model, HttpServletRequest request
+            , HttpServletResponse response) {
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         try {
@@ -186,6 +189,39 @@ public class ShrioController {
             HttpSession session =
                     request.getSession();
             session.setAttribute(String.valueOf(userId), username);
+            if (remmeber != null && remmeber.equals("y")) {//勾选了记住密码
+                //创建两个cookie对象
+//                Cookie namecookie = new Cookie("username", username);
+//                //设置cookie的有效天为一周
+//                namecookie.setMaxAge(60 * 60 * 24 * 7);
+//                Cookie passcookie = new Cookie("password", password);
+//                passcookie.setMaxAge(60 * 60 * 24 * 7);
+//                response.addCookie(namecookie);
+//                response.addCookie(passcookie);
+
+                //loginInfo=zhan+123123
+
+                Cookie namecookie = new Cookie(username, password);
+                namecookie.setMaxAge(30 * 24 * 60 * 60);   //存活期为一个月 30*24*60*60
+                namecookie.setPath("/");
+                response.addCookie(namecookie);
+                Cookie[] cookies = request.getCookies();
+                System.out.println(" cookies= " + JSON.toJSONString(cookies));
+            } else {
+                Cookie[] cookies = request.getCookies();
+
+                if (cookies != null && cookies.length > 0) {
+                    for (Cookie cookie : cookies) {
+                        cookie.setMaxAge(0);
+                        cookie.setPath("/");
+                        response.addCookie(cookie);
+
+                    }
+                }
+                System.out.println(" cookies= " + JSON.toJSONString(cookies));
+
+            }
+
             return "index";
         } catch (UnknownAccountException e) {
             model.addAttribute("info", "用户名不存在");

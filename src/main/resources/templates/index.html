@@ -216,15 +216,14 @@
                 data: '',
                 success: function (res) {
                     res.data.forEach(function (item) {
-                        var tr = document.createElement("tr");
-
-                        tr.innerHTML = "<td class='processId'>" + item.id + "</td>" +
+                        // var tr = document.createElement("tr");
+                        var tr = "<tr><td class='processId'>" + item.id + "</td>" +
                             "<td class='processName'>" + item.name + "</td>" +
                             "<td>启用</td>" +
-                            "<td><a class='btn btn-default btn-sm faqi' data-toggle='modal'data-target='#myModal'>发起</a></td>";
-                        //tr.getElementsByTagName("a")[0].onclick=faqiliucheng;
+                            "<td><a class='btn btn-default btn-sm faqi' data-toggle='modal'data-target='#myModal'>发起</a></td></tr>";
+                        $(tr).appendTo(tbody)
                         $("tr a").click(faqiliucheng);
-                        tbody.appendChild(tr);
+                        //tbody.appendChild(tr);
 
                     });
 
