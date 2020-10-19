@@ -38,6 +38,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
@@ -53,14 +55,12 @@ public class Bsssssssssss {
 
 
     public static void main(String[] args) {
-
-        Map<String,String> map=new HashMap<>();
-
-        map.put("1","1");
-        map.put("2","2");
-        User user=new User();
-        user.setUserName(map.get("3"));
-        System.out.println("user = " + user);
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime time = LocalDateTime.now();
+        String localTime = df.format(time);
+        LocalDateTime ldt = LocalDateTime.parse(localTime, df);
+        //System.out.println("LocalDateTime转成String类型的时间：" + localTime);
+        System.out.println("String类型的时间转成LocalDateTime：" + ldt);
 
 
     }
@@ -72,11 +72,11 @@ public class Bsssssssssss {
     //@Scheduled(cron = "1 * * * * ?")
     public void sendEamil() {
 
-        String sss="sss";
+        String sss = "sss";
         String s = SecureUtil.md5(sss);
 
         System.out.println("============sendEamil================= ");
-        MailBean mailBean=new MailBean();
+        MailBean mailBean = new MailBean();
         mailBean.setSubject("测试email主题");
         mailBean.setContent("测试email 内容");
         mailBean.setRecipient("18061690593@163.com");
@@ -86,28 +86,26 @@ public class Bsssssssssss {
     }
 
 
-
-
     //发送消息方法
     //@Scheduled(cron = "1 * * * * ?")
     public void send() {
         System.out.println("============================= ");
-        for (int i=1;i<=5;i++){
+        for (int i = 1; i <= 5; i++) {
             User user = new User();
-            user.setPassword("iphonepassword"+i);
-            user.setUserName("iphoneusername"+i);
+            user.setPassword("iphonepassword" + i);
+            user.setUserName("iphoneusername" + i);
             String s = JSON.toJSONString(user);
-            System.out.println("发送消息s = " +s);
+            System.out.println("发送消息s = " + s);
 
             //假如没有topic的话  会自动创建
-            kafkaTemplate.send("iphone",s);
+            kafkaTemplate.send("iphone", s);
         }
 
     }
 
 
     //@KafkaListener(topics = "iphone")
-    public void consumer(ConsumerRecord<String,User> data, Acknowledgment ack){
+    public void consumer(ConsumerRecord<String, User> data, Acknowledgment ack) {
 
         System.out.println("data = " + data);
 
@@ -122,13 +120,13 @@ public class Bsssssssssss {
 //                headers = RecordHeaders(headers = [], isReadOnly = false), key = null,
 //                value = {"password":"===========================","userName":"zhantongren谁谁谁谁谁谁谁谁谁"})
 
-        Object value= data.value();
+        Object value = data.value();
         System.out.println("value = " + value);
 
-       // System.out.println("消费msg:"+msg);
+        // System.out.println("消费msg:"+msg);
         ack.acknowledge();
 
-       // ack.acknowledge();
+        // ack.acknowledge();
         // System.out.println("msg="+new Date()+msg);
     }
 
@@ -252,8 +250,8 @@ public class Bsssssssssss {
     public void testPos2t() throws Exception {
         String url = "http://127.0.0.1:8070/testPost";
         JSONObject requestParam = new JSONObject();
-        requestParam.put("userName","zahntonrgen");
-        requestParam.put("password","111111");
+        requestParam.put("userName", "zahntonrgen");
+        requestParam.put("password", "111111");
 //        requestParam.put("Content-Type","application/json");
 //        requestParam.put("Content-EnCoding","UTF-8");
         String s = JSON.toJSONString(requestParam);
@@ -262,13 +260,9 @@ public class Bsssssssssss {
         HttpEntity<String> requestEntity = new HttpEntity<>(s, requestHeaders);
         Object result = restTemplate.postForObject(url, requestEntity, Object.class);
         JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(result));
-        System.out.println("objects:"+jsonObject);
+        System.out.println("objects:" + jsonObject);
 
     }
-
-
-
-
 
 
 }

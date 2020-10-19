@@ -190,32 +190,24 @@ public class ShrioController {
                     request.getSession();
             session.setAttribute(String.valueOf(userId), username);
             if (remmeber != null && remmeber.equals("y")) {//勾选了记住密码
-                //创建两个cookie对象
-//                Cookie namecookie = new Cookie("username", username);
-//                //设置cookie的有效天为一周
-//                namecookie.setMaxAge(60 * 60 * 24 * 7);
-//                Cookie passcookie = new Cookie("password", password);
-//                passcookie.setMaxAge(60 * 60 * 24 * 7);
-//                response.addCookie(namecookie);
-//                response.addCookie(passcookie);
-
-                //loginInfo=zhan+123123
-
-                Cookie namecookie = new Cookie(username, password);
-                namecookie.setMaxAge(30 * 24 * 60 * 60);   //存活期为一个月 30*24*60*60
-                namecookie.setPath("/");
-                response.addCookie(namecookie);
-                Cookie[] cookies = request.getCookies();
-                System.out.println(" cookies= " + JSON.toJSONString(cookies));
+                Cookie nameAndPasscookie = new Cookie(username, password);
+                nameAndPasscookie.setMaxAge(7 * 24 * 60 * 60);   //存活期为7天
+                nameAndPasscookie.setPath("/");
+                response.addCookie(nameAndPasscookie);
+                /**
+                 * cookies 的格式是：
+                 *   zhan=123123；
+                 *   weixiaoyan=123123
+                 *
+                 * 所以前台  首先要根据 ‘;’ 拆分成 键值对数组，然后遍历对比 取值
+                 */
             } else {
                 Cookie[] cookies = request.getCookies();
-
                 if (cookies != null && cookies.length > 0) {
                     for (Cookie cookie : cookies) {
                         cookie.setMaxAge(0);
                         cookie.setPath("/");
                         response.addCookie(cookie);
-
                     }
                 }
                 System.out.println(" cookies= " + JSON.toJSONString(cookies));

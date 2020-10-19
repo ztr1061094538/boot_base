@@ -57,8 +57,6 @@
 </body>
 <script src="../static/jquery-3.5.1.js"></script>
 <script>
-
-
     function getCookieValue(name) {
         var cookkies = document.cookie.split(";");
         for (var i = 0; i < cookkies.length; i++) {
@@ -69,21 +67,6 @@
         }
         return '';
     }
-
-
-    // var key = "loginInfo=";//后台存进cookie的时候，cookie为：   zhan=123123
-    // var nameAndPass = document.cookie;
-    // var index = nameAndPass.indexOf("+");
-    // var name = "";
-    // var password = "";
-    // if (index != -1) {
-    //     name = nameAndPass.substring(key.length, index);
-    //     password = nameAndPass.substring(index + 1, nameAndPass.length);
-    //     $("#username").val(name);
-    //     $("#password").val(password);
-    //     $("#remPas").prop("checked", true)
-    // }
-
 
     $("#username").change(function () {
         var name = $("#username").val();
