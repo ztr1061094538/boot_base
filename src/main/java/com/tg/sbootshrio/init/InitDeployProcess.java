@@ -37,7 +37,7 @@ public class InitDeployProcess implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
 
-//        Thread.sleep(10000);
+//        Thread.sleep(5000);
 //        log.info("初始化流程 开始....");
 //        String processName = "测试流程0827001";
 //        Deployment deployment = repositoryService//获取流程定义和部署对象相关的Service
@@ -59,13 +59,16 @@ public class InitDeployProcess implements CommandLineRunner {
 //        if (bpmnModel != null) {
 //            Process process = bpmnModel.getProcesses().get(0);
 //            List<UserTask> UserTaskList = process.findFlowElementsOfType(UserTask.class);
+//            int order = 1;
 //            for (UserTask userTask : UserTaskList) {
-//                ZProcessNode zProcessNode=new ZProcessNode();
+//                ZProcessNode zProcessNode = new ZProcessNode();
 //                zProcessNode.setIsDel(0);
 //                zProcessNode.setNodeName(userTask.getName());
 //                zProcessNode.setType(id);
 //                zProcessNode.setAssigneeName(userTask.getAssignee());
+//                zProcessNode.setOrder(order);
 //                ZProcessNodeMapper.insert(zProcessNode);
+//                order++;
 //            }
 //        }
 //        log.info("初始化流程 结束....");

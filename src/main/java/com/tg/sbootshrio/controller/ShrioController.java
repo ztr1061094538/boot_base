@@ -40,16 +40,10 @@ public class ShrioController {
     private UserMapper userMapper;
 
     @RequestMapping("/toindex")
-    @MyLog(title = "去登陆模块", action = "去登陆、分页、查询")
-    public String toIndex(Model model) {
-
-//        List<User> users = userService.getUser();
-//        model.addAttribute("msg", "zahntongren");
-//        System.out.println(model.getAttribute("msg"));
+    @MyLog(title = "登陆模块", action = "登陆操作")
+    public String toIndex() {
         return "index";
     }
-
-    //testPost
 
 
     @PostMapping("/testRedis")
@@ -166,7 +160,7 @@ public class ShrioController {
 
 
     @RequestMapping("/tologin")
-    public String tologin(Model model, HttpServletRequest request, HttpServletResponse response) {
+    public String tologin() {
         return "login";
     }
 
@@ -174,21 +168,20 @@ public class ShrioController {
      *
      */
     @PostMapping("/login")
-    public String login(String username, String password, String remmeber, Model model, HttpServletRequest request
+    public String login(String username, String password, String remmeber, HttpServletRequest request
             , HttpServletResponse response) {
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         try {
             subject.login(token);
-
             User user = new User();
             user.setUserName(username);
             List<User> select = userMapper.select(user);
             Long userId = select.get(0).getId();
-            model.addAttribute("userId", userId);
             HttpSession session =
                     request.getSession();
-            session.setAttribute(String.valueOf(userId), username);
+            session.setAttribute("userId", userId+"");
+            session.setMaxInactiveInterval(60*60);//應該是1小时
             if (remmeber != null && remmeber.equals("y")) {//勾选了记住密码
                 Cookie nameAndPasscookie = new Cookie(username, password);
                 nameAndPasscookie.setMaxAge(7 * 24 * 60 * 60);   //存活期为7天
@@ -196,10 +189,8 @@ public class ShrioController {
                 response.addCookie(nameAndPasscookie);
                 /**
                  * cookies 的格式是：
-                 *   zhan=123123；
-                 *   weixiaoyan=123123
-                 *
-                 * 所以前台  首先要根据 ‘;’ 拆分成 键值对数组，然后遍历对比 取值
+                 *   zhan=123123;weixiaoyan=123123
+                 * 所以前台  首先要根据 ‘;’ 拆，然后根据“=”拆，然后遍历对比 取值
                  */
             } else {
                 Cookie[] cookies = request.getCookies();
@@ -210,16 +201,13 @@ public class ShrioController {
                         response.addCookie(cookie);
                     }
                 }
-                System.out.println(" cookies= " + JSON.toJSONString(cookies));
-
             }
-
             return "index";
         } catch (UnknownAccountException e) {
-            model.addAttribute("info", "用户名不存在");
+            //用户名不存在
             return "login";
         } catch (IncorrectCredentialsException e) {
-            model.addAttribute("info", "密码错误");
+            //密码错误
             return "login";
         }
 

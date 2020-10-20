@@ -9,6 +9,7 @@ public class ZProcessNode {
     private String assigneeName;
     private Long type;
     private Integer isDel;
+    private Integer nodeOrder;
 
     @Override
     public String toString() {
@@ -18,6 +19,7 @@ public class ZProcessNode {
                 ", assigneeName='" + assigneeName + '\'' +
                 ", type=" + type +
                 ", isDel=" + isDel +
+                ", nodeOrder=" + nodeOrder +
                 '}';
     }
 }

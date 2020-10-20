@@ -1,7 +1,9 @@
 package com.tg.sbootshrio.controller;
 
 
+import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
 import com.tg.sbootshrio.common.CommonResult;
+import com.tg.sbootshrio.common.Constans;
 import com.tg.sbootshrio.mapper.*;
 import com.tg.sbootshrio.pojo.*;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +25,11 @@ import tk.mybatis.mapper.entity.Example;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,26 +41,28 @@ import java.util.stream.Collectors;
 @Controller
 @Slf4j
 public class leaveController {
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private IdentityService identityService;
 
     @Autowired
-    IdentityService identityService;
-    @Autowired
-    TaskService taskService;
-    @Autowired
-    RuntimeService runtimeService;
+    private TaskService taskService;
 
     @Autowired
-    HistoryService historyService;
+    private RuntimeService runtimeService;
 
     @Autowired
-    RepositoryService repositoryService;
+    private HistoryService historyService;
 
     @Autowired
-    ProcessEngine processEngine;
+    private RepositoryService repositoryService;
+
+    @Autowired
+    private ProcessEngine processEngine;
 
     @Autowired
     private ZProcessMapper zProcessMapper;//流程类型
@@ -78,69 +84,37 @@ public class leaveController {
      */
 
 
-    @RequestMapping("/prcessNodes/{deploymentId}")
-    @ResponseBody
-    public String prcessNodes(@PathVariable("deploymentId") String deploymentId) {
-
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(deploymentId).singleResult();
-
-        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
-
-
-        System.out.println("bpmnModel = " + bpmnModel);
-        if (bpmnModel != null) {
-//            Process mainProcess = bpmnModel.getMainProcess();
-//            Collection<FlowElement> flowElements = mainProcess.getFlowElements();
-//            System.out.println("flowElements.size():"+flowElements.size());
-//            for (FlowElement flowElement : flowElements) {
-//                System.out.println("flowElement = " + flowElement);
-//                String name = flowElement.getName();
-//                System.out.println("name = " + name);
-//            }
-
-
-            Process process = bpmnModel.getProcesses().get(0);
-
-            List<UserTask> UserTaskList = process.findFlowElementsOfType(UserTask.class);
-            for (UserTask userTask : UserTaskList) {
-                String name = userTask.getName();
-                System.out.println("name = " + name);
-                String assignee = userTask.getAssignee();
-                System.out.println("assignee = " + assignee);
-            }
-
-        }
-
-        return "succes";
-    }
-
-
     /**
      * 登陆后发起流程    必须登陆
      *
      * @param zProcessId 流程类型id
-     * @param userId
      * @param request
      * @return
      */
-    @PostMapping("/startActiviti/{zProcessId}/{userId}")
+    @PostMapping("/startActiviti/{zProcessId}")
     @ResponseBody
     @Transactional
-    public CommonResult startActiviti(@PathVariable("zProcessId") Long zProcessId, @PathVariable("userId") String userId
-            , HttpServletRequest request) {
-
+    public CommonResult startActiviti(@PathVariable("zProcessId") Long zProcessId, HttpServletRequest request) {
+        HttpSession session =
+                request.getSession();
+        Object userObject = session.getAttribute("userId");
+        if (userObject == null) {
+            //前台根据返回结果 选择跳转到登录页面
+            return new CommonResult(Constans.SESSION_OUT, "登录超时，请重新登录", null);
+        }
+        String userId = (String) userObject;
+        System.out.println("userId = " + userId);
         System.out.println("发起流程...zProcessId:" + zProcessId + "    userId:" + userId);
         //当前登陆人的姓名
-        String currentName = (String) request.getSession().getAttribute(userId);
-        if (currentName == null || currentName.equals("")) {
-            System.out.println("暂无用户登陆..");
-            log.info("暂无用户登陆..");
-            return null;
-        }
+        User u = new User();
+        u.setId(Long.valueOf(userId));
+        String currentName = userMapper.select(u).get(0).getUserName();
+        System.out.println("currentName = " + currentName);
         // DeploymentQuery deploymentQuery = repositoryService.createDeploymentQuery().deploymentId(deploymentId);
         ZProcess zProcess = new ZProcess();
         zProcess.setId(zProcessId);
-        String zpName = zProcessMapper.select(zProcess).get(0).getName();
+        ZProcess zProcess1 = zProcessMapper.select(zProcess).get(0);
+        String zpName = zProcess1.getName();
         //通过流程名称查询部署表的 相同名字的最新部署的数据
         Deployment deployment = repositoryService.createDeploymentQuery().deploymentName(zpName).orderByDeploymenTime().desc().singleResult();
         //通过 部署id 查询流程定义表
@@ -153,8 +127,19 @@ public class leaveController {
 //        variables.put("leader", "leader");
         //variables.put("days",u.getDays());
         variables.put("userId", currentName);//申请人 userid
+
+//        // 将z_process_node  更新 assignee_name=申请人姓名
+//        ZProcessNode zpNode = new ZProcessNode();
+//        zpNode.setAssigneeName(currentName);
+//        Example zpNodeExample = new Example(ZProcessNode.class);
+//        Example.Criteria criteria1 = zpNodeExample.createCriteria();
+//        criteria1.andEqualTo("type", zProcessId);
+//        criteria1.andEqualTo("nodeOrder", 1);
+//        zProcessNodeMapper.updateByExampleSelective(zpNode, zpNodeExample);
         ProcessInstance processInstanceByKey = runtimeService.startProcessInstanceByKey(key, variables);
         String processInstanceId = processInstanceByKey.getId();//流程实例id
+
+        //将申请节点完成  此时任务跳到了下一个节点（这里是到项目经理审批了）
         Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
         taskService.complete(task.getId());
 
@@ -166,18 +151,18 @@ public class leaveController {
         zApply.setProcessInstanceId(processInstanceId);//流程实例id
         zApply.setProcessStatus(1);//审批中
         zApply.setReason("测试原因");
-
+        zApply.setCreateTime(new Date());
         //当前节点
         Example zpExample = new Example(ZProcessNode.class);
         Example.Criteria criteria = zpExample.createCriteria();
         criteria.andEqualTo("type", zProcessId);
-        zpExample.orderBy("nodeId").asc();
+        criteria.andEqualTo("nodeOrder", 2);//跳过申请人节点
         ZProcessNode zProcessNode = zProcessNodeMapper.selectByExample(zpExample).get(0);
         zApply.setCurrentNode(zProcessNode.getNodeId());//当前审批节点
         zApplyMapper.insert(zApply);
         System.out.println(currentName + "发起+" + zpName + "成功...");
         log.info("{} 发起 {} 流程成功", currentName, zpName);
-        return new CommonResult(200, "succes", null);
+        return new CommonResult(Constans.SUCESS, "succes", null);
     }
 
 
@@ -197,21 +182,32 @@ public class leaveController {
     /**
      * 查询代办任务
      */
-    @GetMapping("/ckeckTask/{userId}")
+    @GetMapping("/ckeckTask")
     @ResponseBody
-    public CommonResult ckeckTask(HttpServletRequest request, @PathVariable("userId") String userId) {
-        String currentName = (String) request.getSession().getAttribute(userId);
-        List<Task> tasks = taskService.createTaskQuery().taskAssignee(currentName).list();
+    public CommonResult ckeckTask(HttpServletRequest request) {
+        HttpSession session =
+                request.getSession();
+        Object userObject = session.getAttribute("userId");
+        if (userObject == null) {
+            //前台根据返回结果 选择跳转到登录页面
+            return new CommonResult(Constans.SESSION_OUT, "登录超时，请重新登录", null);
+        }
+        List<ZprocessRsp> zprocessRspList = new ArrayList<>();
+        String userId = (String) userObject;
+        User u = new User();
+        u.setId(Long.valueOf(userId));
+        String currentName = userMapper.select(u).get(0).getUserName();
+        List<Task> tasks = taskService.createTaskQuery().taskAssignee(currentName).orderByTaskCreateTime().desc().list();
         List<ZApply> zApplies = zApplyMapper.selectAll();
         if (zApplies.isEmpty()) {
-            return null;
+            return new CommonResult(200, "succes", zprocessRspList);
         }
         Map<String, ZApply> applyMap = zApplies.stream().collect(Collectors.toMap(ZApply::getProcessInstanceId, Function.identity()));
         ZProcess zProcess = new ZProcess();
         zProcess.setIsDel(0);
         List<ZProcess> select = zProcessMapper.select(zProcess);
         Map<Long, ZProcess> zProcessMap = select.stream().collect(Collectors.toMap(ZProcess::getId, Function.identity()));
-        List<ZprocessRsp> zprocessRspList = new ArrayList<>();
+
         ZprocessRsp zprocessRsp = null;
         for (Task task : tasks) {
             zprocessRsp = new ZprocessRsp();
@@ -232,10 +228,17 @@ public class leaveController {
     /**
      * 我发起的
      */
-    @GetMapping("/mystart/{userId}")
+    @GetMapping("/mystart")
     @ResponseBody
-    public CommonResult mystart(HttpServletRequest request, @PathVariable("userId") String userId) {
-
+    public CommonResult mystart(HttpServletRequest request) {
+        HttpSession session =
+                request.getSession();
+        Object userObject = session.getAttribute("userId");
+        if (userObject == null) {
+            //前台根据返回结果 选择跳转到登录页面
+            return new CommonResult(Constans.SESSION_OUT, "登录超时，请重新登录", null);
+        }
+        String userId = (String) userObject;
         ZApply zapply = new ZApply();
         zapply.setCreateId(Long.valueOf(userId));
         zapply.setIsDel(0);
@@ -262,11 +265,19 @@ public class leaveController {
     /**
      * 我审批的
      */
-    @GetMapping("/myApproved/{userId}")
+    @GetMapping("/myApproved")
     @ResponseBody
-    public CommonResult myApproved(HttpServletRequest request, @PathVariable("userId") String userId) {
-        List<ZprocessRsp> zprocessRspList = new ArrayList<>();
+    public CommonResult myApproved(HttpServletRequest request) {
 
+        HttpSession session =
+                request.getSession();
+        Object userObject = session.getAttribute("userId");
+        if (userObject == null) {
+            //前台根据返回结果 选择跳转到登录页面
+            return new CommonResult(Constans.SESSION_OUT, "登录超时，请重新登录", null);
+        }
+        String userId = (String) userObject;
+        List<ZprocessRsp> zprocessRspList = new ArrayList<>();
         ZApprove zApprove = new ZApprove();
         zApprove.setApprovedUserId(Long.valueOf(userId));
         //默认  一个流程中  同一个人只能审批一次
@@ -275,7 +286,7 @@ public class leaveController {
             return new CommonResult(200, "succes", zprocessRspList);
         }
 
-        List<String> instanceIds = zApproves.stream().map(e -> e.getProcessInstanceId()).collect(Collectors.toList());
+        Set<String> instanceIds = zApproves.stream().map(e -> e.getProcessInstanceId()).collect(Collectors.toSet());
         Example applyExample = new Example(ZApply.class);
         Example.Criteria criteria = applyExample.createCriteria();
         criteria.andIn("processInstanceId", instanceIds);
@@ -304,12 +315,23 @@ public class leaveController {
      *
      * @return
      */
-    @PostMapping("/approve/{taskId}/{result}/{instanceId}/{userId}")
+    @PostMapping("/approve")
     @ResponseBody
     @Transactional
-    public CommonResult doTask(@PathVariable("taskId") String taskId, @PathVariable("result") Integer result, @PathVariable("instanceId") String instanceId
-            , @PathVariable("userId") String userId) {
+    public CommonResult doTask(@RequestBody QueryTaskParam param, HttpServletRequest request) {
+        System.out.println("param = " + param);
+        HttpSession session =
+                request.getSession();
+        Object userObject = session.getAttribute("userId");
+        if (userObject == null) {
+            //前台根据返回结果 选择跳转到登录页面
+            return new CommonResult(Constans.SESSION_OUT, "登录超时，请重新登录", null);
+        }
+        String userId = (String) userObject;
         Map<String, Object> variables = new HashMap<>();
+        Integer result = param.getResult();
+        String taskId = param.getTaskId();
+        String instanceId = param.getInstanceId();
         if (result == 1) {//通过
             variables.put("approved", true);
         } else {
@@ -349,8 +371,11 @@ public class leaveController {
             // 没有下一个节点了的话   不更新节点  但是把状态 改为已完成
             zApply.setProcessStatus(2);
         }
-        zApplyMapper.updateByPrimaryKeySelective(zApply);
-        System.out.println("完成任务  ...");
+        Example idExample=new Example(ZApply.class);
+        Example.Criteria criteria1 = idExample.createCriteria();
+        criteria1.andEqualTo("id",zApply.getId());
+        zApplyMapper.updateByExampleSelective(zApply,idExample);
+        System.out.println("审批通过  ...");
         return new CommonResult(200, "succes", null);
     }
 
@@ -358,7 +383,7 @@ public class leaveController {
     /**
      * 流程详情(表单+流程节点)
      */
-    @PostMapping("/detail/{instanceId}")
+    @GetMapping("/detail/{instanceId}")
     @ResponseBody
     @Transactional
     public CommonResult detail(@PathVariable("instanceId") String instanceId) {
@@ -371,8 +396,10 @@ public class leaveController {
         Date createTime = zApply.getCreateTime();//发起时间
         String reason = zApply.getReason();//发起说明
         Integer days = zApply.getDays();//天数
-        User user = userMapper.selectByPrimaryKey(userId);
-        String userName = user.getUserName();//发起人姓名
+        User u = new User();
+        u.setId(Long.valueOf(userId));
+        String userName = userMapper.select(u).get(0).getUserName();
+
         ZprocessRsp zprocessRsp = new ZprocessRsp();
         zprocessRsp.setStartUserID(userId);
         zprocessRsp.setStartTime(createTime);
@@ -431,7 +458,6 @@ public class leaveController {
         currentNode.setApprovedStatus("审批中");
         currentNode.setApprovedName(assigneeName);
         nodeList.add(currentNode);
-
         zProcessNodes.removeAll(cNodes);
         //待审批
         ApprovedNode zNodeNext = null;

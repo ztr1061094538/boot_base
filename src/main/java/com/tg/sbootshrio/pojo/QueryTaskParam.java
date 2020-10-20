@@ -8,7 +8,8 @@ import lombok.Data;
 @Data
 public class QueryTaskParam {
     private String userId;
-
-    private Integer type;//查询的类型    代办？发起？审批的？
-
+    private Integer type;
+    private Integer result;//1通过
+    private String instanceId;
+    private String taskId;
 }
