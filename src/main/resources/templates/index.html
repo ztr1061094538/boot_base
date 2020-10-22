@@ -30,6 +30,7 @@
             height: 100px;
             width: auto;
             background-color: azure;
+            position: relative;
         }
 
         ul {
@@ -42,12 +43,39 @@
             text-align: center;
         }
 
+        #fileLocal {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            top: 20px;
+            right: 180px;
+            border-radius: 50%;
+        }
+
+        #form {
+            width: 200px;
+            height: 60px;
+            position: absolute;
+            top: 20px;
+            left: 180px;
+        }
+
     </style>
 
 </head>
 <body>
 <!--<div class="container">-->
 <div class="box1">
+    <div id="form">
+        <form action="/user/uploadFile" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" value="选择图片">
+            <input type="submit" value="上传">
+        </form>
+    </div>
+
+    <div id="fileLocal">
+        <img src="" style="border-radius: 50%;height: 60px;width: 60px"/>
+    </div>
 </div>
 <div class="row">
     <div class="col-md-1" id="wrap">
@@ -123,6 +151,17 @@
 </div>
 </body>
 <script>
+
+    $(function () {
+        $.get('/user/getImg', function (res) {
+           var path="../static/img/" + res.data;
+            $("img").attr("src", path)
+            // var img = document.getElementsByTagName("img")[0];
+            // img.src=path;
+        })
+
+    })
+
     function faqiliucheng() {
         var tr = $(this).parents("tr");
         var processId = tr.find(".processId").html();
@@ -171,9 +210,8 @@
 
     //var tbody = document.getElementsByTagName("tbody")[0];
     $("#process tbody").delegate("a", "click", faqiliucheng)
-    $(function () {
-        $('.processTypes').click(processList);
-    })
+
+    $('.processTypes').click(processList);
 
     function querytodo() {
         $("#process").css("display", "none");

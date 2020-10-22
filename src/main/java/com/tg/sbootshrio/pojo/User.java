@@ -11,6 +11,7 @@ public class User {
     private String phone;
     private String email;
     private Integer sex;
+    private String filepath;
 
     @Override
     public String toString() {
@@ -21,6 +22,7 @@ public class User {
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 ", sex=" + sex +
+                ", filepath='" + filepath + '\'' +
                 '}';
     }
 }

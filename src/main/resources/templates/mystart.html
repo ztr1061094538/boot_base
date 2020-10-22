@@ -21,16 +21,31 @@
 </head>
 <body>
 
+<!--<ul>-->
+    <!--<li class="name2" id="zaaaaa">111111111111111</li>-->
+<!--</ul>-->
+
 <ul>
-    <li class="name2" id="zaaaaa">111111111111111</li>
+
+
 </ul>
 </body>
 <script>
-    $(".name2").click(function () {
-        $("#zaaaaa").removeClass("name2");
-        $("#zaaaaa").addClass("name1");
+    // $(".name2").click(function () {
+    //     $("#zaaaaa").removeClass("name2");
+    //     $("#zaaaaa").addClass("name1");
+    //
+    // })
 
-    })
+$(function () {
+    var classname="def";
+    var num=108;
+    var tr='<li class='+classname+' id="ff"><span class="deptName">在场车辆数量'+num+'</span><span>辆</span></li>'
+    $(tr).appendTo($("ul"))
+    $("#ff").removeClass("def");
+    $("#ff").addClass("name1");
+})
+
 
 </script>
 </html>
