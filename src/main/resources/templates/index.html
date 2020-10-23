@@ -74,7 +74,7 @@
     </div>
 
     <div id="fileLocal">
-        <img src="" style="border-radius: 50%;height: 60px;width: 60px"/>
+        <img src="192.168.149.128/group1/M00/00/00/wKiVgF-SYIyAaMHYAABB9eazABI635.jpg" style="border-radius: 50%;height: 60px;width: 60px"/>
     </div>
 </div>
 <div class="row">
@@ -153,12 +153,11 @@
 <script>
 
     $(function () {
-        $.get('/user/getImg', function (res) {
-           var path="../static/img/" + res.data;
-            $("img").attr("src", path)
+       // $.get('/user/getImg', function (res) {
+           // $("img").attr("src", res.data)
             // var img = document.getElementsByTagName("img")[0];
             // img.src=path;
-        })
+        //})
 
     })
 

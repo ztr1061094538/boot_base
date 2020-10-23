@@ -1,4 +1,11 @@
 
+fdfs:
+  so-timeout: 1500
+  connect-timeout: 600
+  pool:
+    jmx-enabled: false
+  tracker-list: 192.168.149.128:22122
+
 
 server:
   port: 8070

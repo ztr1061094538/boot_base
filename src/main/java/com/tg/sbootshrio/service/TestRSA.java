@@ -172,7 +172,7 @@ public class TestRSA {
             System.out.println("私钥:" + privateKey);
             System.out.println("公钥:" + publicKey);
             // RSA加密
-            String data = "待加密的文字内容";
+            String data = "18061690593";
             String encryptData = encrypt(data, getPublicKey(publicKey));
             System.out.println("加密后内容:" + encryptData);
             // RSA解密
@@ -181,6 +181,8 @@ public class TestRSA {
 
             // RSA签名
             String sign = sign(data, getPrivateKey(privateKey));
+            System.out.println("sign.toString() = " + sign.toString());
+            System.out.println("data = " + data);
             // RSA验签
             boolean result = verify(data, getPublicKey(publicKey), sign);
             System.out.print("验签结果:" + result);
