@@ -17,7 +17,9 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
 
@@ -30,8 +32,8 @@ import java.util.UUID;
 public class UserController {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    String fileLocal="D:\\wb\\fileLocal";
-    String ipAndPort="192.168.149.128/";
+    String fileLocal = "D:\\wb\\fileLocal";
+    String ipAndPort = "http://192.168.149.128/";
     @Autowired
     private UserMapper userMapper;
 
@@ -56,10 +58,10 @@ public class UserController {
 //
         String originalFilename = file.getOriginalFilename();
         String extentionName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
-        String newName= UUID.randomUUID()+extentionName;
-        File newFile=new File(fileLocal+newName);
+        String newName = UUID.randomUUID() + extentionName;
+        File newFile = new File(fileLocal + newName);
         file.transferTo(newFile);
-        FileInputStream inputStream=new FileInputStream(newFile);
+        FileInputStream inputStream = new FileInputStream(newFile);
         StorePath storePath = fastFileStorageClient.uploadFile(inputStream, newFile.length(), extentionName, null);
         String fullPath = storePath.getFullPath();
         String path = storePath.getPath();
@@ -71,7 +73,7 @@ public class UserController {
         String userId = (String) userObject;
         // 路径存库
         User u = new User();
-        u.setFilepath(ipAndPort+fullPath);
+        u.setFilepath(ipAndPort + fullPath);
         Example uExample = new Example(User.class);
         Example.Criteria criteria = uExample.createCriteria();
         criteria.andEqualTo("id", userId);
@@ -92,6 +94,5 @@ public class UserController {
         String imgpath = userMapper.select(u).get(0).getFilepath();
         return new CommonResult(Constans.SUCESS, "succes", imgpath);
     }
-
 
 }
