@@ -16,10 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
 
@@ -56,6 +55,12 @@ public class UserController {
 //        System.out.println("path = " + path);
 //        System.out.println("fullPath = " + fullPath);
 //
+        /**
+         * String originalFilename = file.getOriginalFilename();
+         *         String extentionName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+         *         InputStream inputStream = file.getInputStream();
+         *         StorePath storePath = fastFileStorageClient.uploadFile(inputStream, file.getSize(), extentionName, null);
+         */
         String originalFilename = file.getOriginalFilename();
         String extentionName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
         String newName = UUID.randomUUID() + extentionName;
@@ -95,4 +100,20 @@ public class UserController {
         return new CommonResult(Constans.SUCESS, "succes", imgpath);
     }
 
+
+    @GetMapping("/testIO")
+    public void testIO(HttpServletResponse response) throws IOException {
+
+        String filePath = "D:/wb/fileLocal/sdadasda.jpg";
+        File file = new File(filePath);
+        InputStream inputStream = new FileInputStream(file);
+        OutputStream outputStream = response.getOutputStream();
+        byte[] bytes = new byte[1024];
+        int length = 0;
+        while ((length = inputStream.read(bytes)) != -1) {
+            outputStream.write(bytes, 0, length);
+        }
+        inputStream.close();
+        outputStream.close();
+    }
 }

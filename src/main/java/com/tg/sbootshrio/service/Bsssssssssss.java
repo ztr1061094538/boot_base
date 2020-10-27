@@ -4,10 +4,8 @@ package com.tg.sbootshrio.service;
  * Created by DHAdmin on 2020/7/23.
  */
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tg.sbootshrio.pojo.MailBean;
 import com.tg.sbootshrio.pojo.User;
@@ -24,10 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -36,11 +32,13 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class Bsssssssssss {
@@ -55,12 +53,30 @@ public class Bsssssssssss {
 
 
     public static void main(String[] args) {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime time = LocalDateTime.now();
-        String localTime = df.format(time);
-        LocalDateTime ldt = LocalDateTime.parse(localTime, df);
-        //System.out.println("LocalDateTime转成String类型的时间：" + localTime);
-        System.out.println("String类型的时间转成LocalDateTime：" + ldt);
+//        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        LocalDateTime time = LocalDateTime.now();
+//        String localTime = df.format(time);
+//        LocalDateTime ldt = LocalDateTime.parse(localTime, df);
+//        //System.out.println("LocalDateTime转成String类型的时间：" + localTime);
+//        System.out.println("String类型的时间转成LocalDateTime：" + ldt);
+
+        String num10="23160";
+       String num16= Integer.toHexString(Integer.valueOf(num10));
+        System.out.println("num16 = " + num16);
+        int length = num16.length();
+        StringBuffer num168=new StringBuffer();
+        if(length<8){
+            int addlength=8-length;
+            for (int i=0;i<addlength;i++){
+                num168.append("0");
+            }
+            num168.append(num16);
+        }
+        // String num16 = HexUtils.getHexCardNum(num10);
+        System.out.println("num168 = " + num168);
+        BigInteger bigInteger=new BigInteger(num16,16);
+        int i = bigInteger.intValue();
+        System.out.println("i = " + i);
 
 
     }
